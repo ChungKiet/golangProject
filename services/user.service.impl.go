@@ -67,7 +67,7 @@ func (u *UserServiceImpl) GetAll() ([]*models.User, error) {
 
 func (u *UserServiceImpl) UpdateUser(user *models.User) error {
 	filter := bson.D{primitive.E{Key: "name", Value: user.Name}}
-	update := bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "name", Value: user.Name}, primitive.E{Key: "isTransform", Value: user.IsTransform}, primitive.E{Key: "balance", Value: user.Balance}, primitive.E{Key: "sent", Value: user.Sent}, primitive.E{Key: "received", Value: user.Received}}}}
+	update := bson.D{primitive.E{Key: "$set", Value: bson.D{primitive.E{Key: "name", Value: user.Name}, primitive.E{Key: "isTransfer", Value: user.IsTransfer}, primitive.E{Key: "balance", Value: user.Balance}, primitive.E{Key: "sent", Value: user.Sent}, primitive.E{Key: "received", Value: user.Received}}}}
 	result, _ := u.usercollection.UpdateOne(u.ctx, filter, update)
 	if result.MatchedCount != 1 {
 		return errors.New("no matched document found for update")
