@@ -50,8 +50,10 @@ func (uc *UserController) CreateUser(ctx *gin.Context) {
 	// Check regex (must have alphanumeric characters)
 	reAlphaBeta := regexp.MustCompile("[a-zA-Z]")
 	reNum := regexp.MustCompile("[0-9]")
+	reSpecial := regexp.MustCompile("[$&+,:;=?@#|'<>.^*()%!- ]")
 
-	if !reAlphaBeta.MatchString(username) || !reNum.MatchString(username) {
+	//[$&+,:;=?@#|'<>.^*()%!-]
+	if (!reAlphaBeta.MatchString(username) && !reNum.MatchString(username)) || reSpecial.MatchString(username) {
 		ctx.JSON(http.StatusBadGateway, gin.H{"message": "Your username must have both alpha and numeric!"})
 		return
 	}
@@ -114,6 +116,7 @@ func (uc *UserController) Transfer(ctx *gin.Context) {
 
 	reAlphaBeta := regexp.MustCompile("[a-zA-Z]")
 	reNum := regexp.MustCompile("[0-9]")
+	reSpecial := regexp.MustCompile("[$&+,:;=?@#|'<>.^*()%!- ]")
 
 	// Validate name of user in FE
 	if len(sent) != 5 || len(receive) != 5 {
@@ -121,14 +124,20 @@ func (uc *UserController) Transfer(ctx *gin.Context) {
 		return
 	}
 
+	// check self-transfer
+	if sent == receive {
+		ctx.JSON(http.StatusBadGateway, gin.H{"message": "You can't transfer to yourself!"})
+		return
+	}
+
 	// If admin --> ignore format of name
-	if (!reAlphaBeta.MatchString(sent) || !reNum.MatchString(sent)) && !checkAdmin {
+	if (!reAlphaBeta.MatchString(sent) && !reNum.MatchString(sent)) || reSpecial.MatchString(sent) {
 		ctx.JSON(http.StatusBadGateway, gin.H{"message": "The sent's username is invalid!"})
 		return
 	}
 
 	// Check received user
-	if !reAlphaBeta.MatchString(receive) || !reNum.MatchString(receive) {
+	if (!reAlphaBeta.MatchString(receive) && !reNum.MatchString(receive)) || reSpecial.MatchString(receive) {
 		ctx.JSON(http.StatusBadGateway, gin.H{"message": "The receive's username is invalid!"})
 		return
 	}
