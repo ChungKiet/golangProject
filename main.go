@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"example.com/sarang-apis/controllers"
-	"example.com/sarang-apis/services"
+	"kietchung/controllers"
+	"kietchung/services"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,8 +16,8 @@ import (
 
 var (
 	server      *gin.Engine
-	us          services.UserService
-	uc          controllers.UserController
+	cs          services.ChemistryService
+	cc          controllers.ChemistryController
 	ctx         context.Context
 	userc       *mongo.Collection
 	mongoclient *mongo.Client
@@ -27,10 +27,11 @@ var (
 func init() {
 	ctx = context.TODO()
 
-	mongoconn := options.Client().ApplyURI("mongodb+srv://tuankiet:miniproject@bankaccount.lfuju.mongodb.net/?retryWrites=true&w=majority")
+	mongoconn := options.Client().ApplyURI("mongodb+srv://kietlu:miniproject@cluster0.84zjw84.mongodb.net/test?authSource=admin&ssl=false&retryWrites=true&w=majority")
 	mongoclient, err = mongo.Connect(ctx, mongoconn)
 	if err != nil {
 		log.Fatal("error while connecting with mongo", err)
+
 	}
 	err = mongoclient.Ping(ctx, readpref.Primary())
 	if err != nil {
@@ -39,9 +40,9 @@ func init() {
 
 	fmt.Println("mongo connection established")
 
-	userc = mongoclient.Database("userdb").Collection("users")
-	us = services.NewUserService(userc, ctx)
-	uc = controllers.New(us)
+	userc = mongoclient.Database("chemistry").Collection("chemistry")
+	cs = services.NewUserService(userc, ctx)
+	cc = controllers.New(cs)
 	server = gin.Default()
 }
 
@@ -49,7 +50,7 @@ func main() {
 	defer mongoclient.Disconnect(ctx)
 
 	basepath := server.Group("/v1")
-	uc.RegisterUserRoutes(basepath)
+	cc.RegisterUserRoutes(basepath)
 
 	log.Fatal(server.Run(":5678"))
 
