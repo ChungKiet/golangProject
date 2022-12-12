@@ -1,26 +1,49 @@
 package request
 
 type GetChemistryReq struct {
-	TypeMaterial string `json:"typeMaterial" form:"typeMaterial"`
+	TypeChemical string `json:"typeChemical" form:"typeChemical"`
+	GroupName    string `json:"groupName" form:"groupName"`
 	TypeSpectrum string `json:"typeSpectrum" form:"typeSpectrum"`
 	Chemical     string `json:"chemical" form:"chemical"`
 }
 
 type DeleteChemistryReq struct {
-	TypeMaterial string `json:"typeMaterial" form:"typeMaterial"`
+	TypeChemical string `json:"typeChemical" form:"typeChemical"`
+	GroupName    string `json:"groupName" form:"groupName"`
 	TypeSpectrum string `json:"typeSpectrum" form:"typeSpectrum"`
 	Chemical     string `json:"chemical" form:"chemical"`
 }
 
 type InsertChemistryReq struct {
-	TypeMaterial string `json:"typeMaterial"`
-	TypeSpectrum string `json:"typeSpectrum"`
-	Chemical     string `json:"chemical"`
-	HTMLText     string `json:"htmlText,omitempty"`
+	TypeChemical string `json:"typeChemical,omitempty"`
+	GroupName    string `json:"groupName,omitempty"`
+	TypeSpectrum string `json:"typeSpectrum,omitempty"`
+	Chemical     string `json:"chemical,omitempty"`
 	VideoUrl     string `json:"videoUrl,omitempty"`
 }
 
-type GetChemistryListBySpectrum struct {
-	TypeMaterial string `json:"typeMaterial"`
-	TypeSpectrum string `json:"typeSpectrum"`
+type UpdateChemistryReq struct {
+	TypeChemical string `json:"typeChemical,omitempty"`
+	GroupName    string `json:"groupName,omitempty"`
+	TypeSpectrum string `json:"typeSpectrum,omitempty"`
+	Chemical     string `json:"chemical,omitempty"`
+	VideoUrl     string `json:"videoUrl,omitempty"`
+}
+
+type GetRefDocument struct {
+	Type string `json:"type"`
+}
+
+type ImportRefDocument struct {
+	Type string `json:"type"`
+	Url  string `json:"url"`
+}
+
+type UpdateRefDocument struct {
+	Type string `json:"type"`
+	Url  string `json:"url"`
+}
+
+type DeleteRefDocument struct {
+	Type string `json:"type"`
 }

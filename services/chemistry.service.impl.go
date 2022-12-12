@@ -15,14 +15,16 @@ import (
 @YTChannel: https://www.youtube.com/channel/UCVno4tMHEXietE3aUTodaZQ
 */
 type ChemistryServiceImpl struct {
-	chemistryCollection *mongo.Collection
-	ctx                 context.Context
+	refDocumentCollection *mongo.Collection
+	chemistryCollection   *mongo.Collection
+	ctx                   context.Context
 }
 
-func NewUserService(chemistryCollection *mongo.Collection, ctx context.Context) ChemistryService {
+func NewUserService(chemistryCollection *mongo.Collection, refDocument *mongo.Collection, ctx context.Context) ChemistryService {
 	return &ChemistryServiceImpl{
-		chemistryCollection: chemistryCollection,
-		ctx:                 ctx,
+		refDocumentCollection: refDocument,
+		chemistryCollection:   chemistryCollection,
+		ctx:                   ctx,
 	}
 }
 
@@ -34,8 +36,12 @@ func (c *ChemistryServiceImpl) ImportMaterial(chemistry *models.Chemistry) (*mod
 func (c *ChemistryServiceImpl) GetMaterialUrl(chemistry *request.GetChemistryReq) ([]*models.Chemistry, error) {
 	filter := bson.M{}
 	var res []*models.Chemistry
-	if chemistry.TypeMaterial != "" {
-		filter["type_material"] = chemistry.TypeMaterial
+	if chemistry.TypeChemical != "" {
+		filter["type_chemical"] = chemistry.TypeChemical
+	}
+
+	if chemistry.GroupName != "" {
+		filter["group_name"] = chemistry.GroupName
 	}
 
 	if chemistry.TypeSpectrum != "" {
@@ -46,7 +52,7 @@ func (c *ChemistryServiceImpl) GetMaterialUrl(chemistry *request.GetChemistryReq
 		filter["chemical"] = chemistry.Chemical
 	}
 
-	cursor, err := c.chemistryCollection.Find(c.ctx, bson.D{{}})
+	cursor, err := c.chemistryCollection.Find(c.ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -75,18 +81,16 @@ func (c *ChemistryServiceImpl) GetMaterialUrl(chemistry *request.GetChemistryReq
 
 func (c *ChemistryServiceImpl) UpdateMaterial(chemistry *models.Chemistry) (*models.Chemistry, error) {
 	filter := bson.M{}
-	if chemistry.TypeMaterial == "" || chemistry.TypeSpectrum == "" || chemistry.Chemical == "" {
+	if chemistry.TypeChemical == "" || chemistry.TypeSpectrum == "" || chemistry.Chemical == "" || chemistry.GroupName == "" {
 		return nil, errors.New("Request invalid!")
 	}
 
-	filter["type_material"] = chemistry.TypeMaterial
+	filter["group_name"] = chemistry.GroupName
+	filter["type_chemical"] = chemistry.TypeChemical
 	filter["type_spectrum"] = chemistry.TypeSpectrum
 	filter["chemical"] = chemistry.Chemical
 
 	update := bson.M{}
-	if chemistry.HTMLText != "" {
-		update["html_text"] = chemistry.HTMLText
-	}
 
 	if chemistry.VideoUrl != "" {
 		update["video_url"] = chemistry.VideoUrl
@@ -104,11 +108,12 @@ func (c *ChemistryServiceImpl) UpdateMaterial(chemistry *models.Chemistry) (*mod
 
 func (c *ChemistryServiceImpl) DeleteMaterial(chemistry *request.DeleteChemistryReq) error {
 	filter := bson.M{}
-	if chemistry.TypeMaterial == "" || chemistry.TypeSpectrum == "" || chemistry.Chemical == "" {
+	if chemistry.TypeChemical == "" || chemistry.TypeSpectrum == "" || chemistry.Chemical == "" || chemistry.GroupName == "" {
 		return errors.New("Request invalid!")
 	}
 
-	filter["type_material"] = chemistry.TypeMaterial
+	filter["group_name"] = chemistry.GroupName
+	filter["type_chemical"] = chemistry.TypeChemical
 	filter["type_spectrum"] = chemistry.TypeSpectrum
 	filter["chemical"] = chemistry.Chemical
 
@@ -117,4 +122,36 @@ func (c *ChemistryServiceImpl) DeleteMaterial(chemistry *request.DeleteChemistry
 		return errors.New("no matched document found for delete")
 	}
 	return nil
+}
+
+func (c *ChemistryServiceImpl) GetReferenceDocument(refDoc *request.GetRefDocument) ([]*models.ReferenceDocument, error) {
+	filter := bson.M{}
+	var res []*models.ReferenceDocument
+	if refDoc.Type != "" {
+		filter["type"] = refDoc.Type
+	}
+
+	cursor, err := c.refDocumentCollection.Find(c.ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	for cursor.Next(c.ctx) {
+		var chemistryRes models.ReferenceDocument
+		err := cursor.Decode(&chemistryRes)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, &chemistryRes)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	cursor.Close(c.ctx)
+
+	if len(res) == 0 {
+		return nil, errors.New("documents not found")
+	}
+	return res, err
 }

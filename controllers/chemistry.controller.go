@@ -30,7 +30,8 @@ func (uc *ChemistryController) ImportMaterial(ctx *gin.Context) {
 
 	// Check already register
 	chemistry, err := uc.ChemistryService.GetMaterialUrl(&request.GetChemistryReq{
-		TypeMaterial: input.TypeMaterial,
+		TypeChemical: input.TypeChemical,
+		GroupName:    input.GroupName,
 		TypeSpectrum: input.TypeSpectrum,
 		Chemical:     input.Chemical,
 	})
@@ -42,10 +43,10 @@ func (uc *ChemistryController) ImportMaterial(ctx *gin.Context) {
 
 	// Init new user
 	var chemistryReq = models.Chemistry{
-		TypeMaterial: input.TypeMaterial,
+		GroupName:    input.GroupName,
+		TypeChemical: input.TypeChemical,
 		TypeSpectrum: input.TypeSpectrum,
 		Chemical:     input.Chemical,
-		HTMLText:     input.HTMLText,
 		VideoUrl:     input.VideoUrl,
 	}
 
@@ -113,4 +114,19 @@ func (uc *ChemistryController) RegisterUserRoutes(rg *gin.RouterGroup) {
 	chemistryRoute.GET("/get-material", uc.GetMaterialUrl)
 	chemistryRoute.PUT("/update-material", uc.UpdateMaterial)
 	chemistryRoute.DELETE("/delete-material", uc.DeleteMaterial)
+}
+
+func (uc *ChemistryController) GetReferenceDocument(ctx *gin.Context) {
+	var getRefDocument request.GetRefDocument
+	err := ctx.ShouldBindQuery(&getRefDocument)
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+		return
+	}
+	refDocument, err := uc.ChemistryService.GetReferenceDocument(&getRefDocument)
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, refDocument)
 }

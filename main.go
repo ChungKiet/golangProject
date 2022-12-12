@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
 
 	"kietchung/controllers"
@@ -11,23 +12,23 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 var (
-	server      *gin.Engine
-	cs          services.ChemistryService
-	cc          controllers.ChemistryController
-	ctx         context.Context
-	userc       *mongo.Collection
-	mongoclient *mongo.Client
-	err         error
+	server       *gin.Engine
+	cs           services.ChemistryService
+	cc           controllers.ChemistryController
+	ctx          context.Context
+	chemistryCol *mongo.Collection
+	refDocCol    *mongo.Collection
+	mongoclient  *mongo.Client
+	err          error
 )
 
 func init() {
 	ctx = context.TODO()
 
-	mongoconn := options.Client().ApplyURI("mongodb+srv://kietlu:miniproject@cluster0.84zjw84.mongodb.net/test?authSource=admin&ssl=false&retryWrites=true&w=majority")
+	mongoconn := options.Client().ApplyURI("mongodb+srv://tuankiet10022171:kietlu1712@cluster0.znigccy.mongodb.net/?retryWrites=true&w=majority")
 	mongoclient, err = mongo.Connect(ctx, mongoconn)
 	if err != nil {
 		log.Fatal("error while connecting with mongo", err)
@@ -40,8 +41,10 @@ func init() {
 
 	fmt.Println("mongo connection established")
 
-	userc = mongoclient.Database("chemistry").Collection("chemistry")
-	cs = services.NewUserService(userc, ctx)
+	chemistryCol = mongoclient.Database("chemistry").Collection("chemistry")
+	refDocCol = mongoclient.Database("chemistry").Collection("ref_document")
+
+	cs = services.NewUserService(chemistryCol, refDocCol, ctx)
 	cc = controllers.New(cs)
 	server = gin.Default()
 }
