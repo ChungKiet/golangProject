@@ -136,13 +136,13 @@ func (uc *ChemistryController) GetReferenceDocument(ctx *gin.Context) {
 }
 
 func (uc *ChemistryController) ImportReferenceDocument(ctx *gin.Context) {
-	var getRefDocument request.GetRefDocument
-	err := ctx.ShouldBindQuery(&getRefDocument)
+	var getRefDocument models.ReferenceDocument
+	err := ctx.ShouldBindJSON(&getRefDocument)
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
 		return
 	}
-	refDocument, err := uc.ChemistryService.GetReferenceDocument(&getRefDocument)
+	refDocument, err := uc.ChemistryService.ImportReferenceDocument(&getRefDocument)
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
 		return
