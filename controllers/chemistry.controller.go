@@ -114,6 +114,10 @@ func (uc *ChemistryController) RegisterUserRoutes(rg *gin.RouterGroup) {
 	chemistryRoute.GET("/get-material", uc.GetMaterialUrl)
 	chemistryRoute.PUT("/update-material", uc.UpdateMaterial)
 	chemistryRoute.DELETE("/delete-material", uc.DeleteMaterial)
+
+	chemistryRoute.GET("/get-ref-doc", uc.GetReferenceDocument)
+	chemistryRoute.GET("/import-ref-doc", uc.ImportReferenceDocument)
+
 }
 
 func (uc *ChemistryController) GetReferenceDocument(ctx *gin.Context) {
