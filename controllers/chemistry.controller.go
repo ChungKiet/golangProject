@@ -116,7 +116,7 @@ func (uc *ChemistryController) RegisterUserRoutes(rg *gin.RouterGroup) {
 	chemistryRoute.DELETE("/delete-material", uc.DeleteMaterial)
 
 	chemistryRoute.GET("/get-ref-doc", uc.GetReferenceDocument)
-	chemistryRoute.GET("/import-ref-doc", uc.ImportReferenceDocument)
+	chemistryRoute.POST("/import-ref-doc", uc.ImportReferenceDocument)
 
 }
 
