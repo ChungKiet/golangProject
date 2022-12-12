@@ -12,4 +12,5 @@ type ChemistryService interface {
 	DeleteMaterial(chemistry *request.DeleteChemistryReq) error
 
 	GetReferenceDocument(chemistry *request.GetRefDocument) ([]*models.ReferenceDocument, error)
+	ImportReferenceDocument(chemistry *models.ReferenceDocument) (*models.ReferenceDocument, error)
 }

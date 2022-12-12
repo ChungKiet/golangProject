@@ -155,3 +155,18 @@ func (c *ChemistryServiceImpl) GetReferenceDocument(refDoc *request.GetRefDocume
 	}
 	return res, err
 }
+
+func (c *ChemistryServiceImpl) ImportReferenceDocument(refDoc *models.ReferenceDocument) (*models.ReferenceDocument, error) {
+	filter := bson.M{}
+
+	filter["name"] = refDoc.Name
+	filter["type"] = refDoc.Type
+	filter["url"] = refDoc.Url
+
+	_, err := c.refDocumentCollection.InsertOne(c.ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	return refDoc, err
+}
