@@ -3,15 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/joho/godotenv"
-
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	"log"
-	"os"
-
 	"kietchung/controllers"
 	"kietchung/services"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -35,22 +31,15 @@ const (
 
 func init() {
 	ctx = context.TODO()
-	err := godotenv.Load(".env")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 
-	username := os.Getenv(USERNAME)
-	password := os.Getenv(PASSWORD)
-	//mongoconn := options.Client().ApplyURI("mongodb+srv://tuankiet10022171:kietlu1712@cluster0.znigccy.mongodb.net/?retryWrites=true&w=majority")
-	mongoConn := fmt.Sprintf("mongodb://%s:%s@localhost:27017/chemistry", username, password)
-	mongoconn := options.Client().ApplyURI(mongoConn)
-	mongoclient, err = mongo.Connect(ctx, mongoconn)
+	//uriConn := "mongodb://" + USER + ":" + PASSWORD + "@" + HOST + ":" + PORT + "/" + DB_NAME + "?authSource=admin"
+	uriConn := "mongodb+srv://tuankiet:kietlu1712@bankaccount.lfuju.mongodb.net/?retryWrites=true&w=majority"
+	option := options.Client().ApplyURI(uriConn)
+	mongoclient, err = mongo.Connect(ctx, option)
 	if err != nil {
 		log.Fatal("error while connecting with mongo", err)
-
 	}
+
 	err = mongoclient.Ping(ctx, readpref.Primary())
 	if err != nil {
 		log.Fatal("error while trying to ping mongo", err)
@@ -60,6 +49,12 @@ func init() {
 
 	chemistryCol = mongoclient.Database("chemistry").Collection("chemistry")
 	refDocCol = mongoclient.Database("chemistry").Collection("ref_document")
+	//index := mongo.IndexModel{
+	//	Keys: bson.M{
+	//		"s_id": 1,
+	//	},
+	//	Options: options.Index().SetUnique(true),
+	//}
 
 	cs = services.NewUserService(chemistryCol, refDocCol, ctx)
 	cc = controllers.New(cs)
